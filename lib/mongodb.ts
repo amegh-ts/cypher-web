@@ -1,50 +1,44 @@
 import mongoose from "mongoose";
+import { config } from "./config";
 
-const MONGODB_URI =
-  process.env.MONGODB_URI ||
-  "mongodb+srv://admin:Y6rWl@example.com/?retryWrites=true&w=majority";
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
-}
-
-// Declare global type for mongoose caching
 declare global {
-  var myMongoose: {
+  var mongooseGlobal: {
     conn: typeof mongoose | null;
     promise: Promise<typeof mongoose> | null;
   };
 }
 
-let cached = global.myMongoose;
+const globalAny = global as typeof globalThis & {
+  mongooseGlobal?: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+};
 
-if (!cached) {
-  cached = global.myMongoose = { conn: null, promise: null };
+if (!globalAny.mongooseGlobal) {
+  globalAny.mongooseGlobal = { conn: null, promise: null };
 }
 
-async function connectDB() {
-  if (cached.conn) {
-    return cached.conn;
-  }
+const cached = globalAny.mongooseGlobal;
+
+export default async function connectDB() {
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((myMongoose) => {
-      return myMongoose;
-    });
+    cached.promise = mongoose
+      .connect(config.mongodb.uri, {
+        dbName: config.mongodb.dbName, // ✅ this forces use of CYPHER db
+        bufferCommands: false,
+      })
+      .then((mongooseInstance) => {
+        console.log(
+          "✅ Connected to MongoDB:",
+          mongooseInstance.connection.name
+        );
+        return mongooseInstance;
+      });
   }
 
-  try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
-  }
-
+  cached.conn = await cached.promise;
   return cached.conn;
 }
-
-export default connectDB;
