@@ -27,7 +27,6 @@ export default async function connectDB() {
   if (!cached.promise) {
     cached.promise = mongoose
       .connect(config.mongodb.uri, {
-        dbName: config.mongodb.dbName, // ✅ this forces use of CYPHER db
         bufferCommands: false,
       })
       .then((mongooseInstance) => {
