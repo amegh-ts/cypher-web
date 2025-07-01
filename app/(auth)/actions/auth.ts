@@ -8,7 +8,7 @@ import {
   setSession,
   clearSession,
 } from "@/lib/auth";
-import User from "@/models/User";
+import Admin from "@/models/User";
 
 function generateUserId(): number {
   return Math.floor(Math.random() * 9000000000) + 1000000000;
@@ -32,7 +32,7 @@ export async function registerAction(formData: FormData): Promise<void> {
 
   await connectDB();
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await Admin.findOne({ email });
   if (existingUser) {
     throw new Error("User already exists");
   }
@@ -41,16 +41,13 @@ export async function registerAction(formData: FormData): Promise<void> {
   const { date, time } = getCurrentDateTime();
 
   const hashedPassword = hashPassword(password);
-  const user = await User.create({
+  const user = await Admin.create({
     _id: userId,
-    name,
     email,
     password: hashedPassword,
     role: "user",
-    dc_id: null,
     date,
     time,
-    permission: true,
   });
 
   await setSession(user);
@@ -68,7 +65,7 @@ export async function loginAction(formData: FormData): Promise<void> {
 
   await connectDB();
 
-  const user = await User.findOne({ email });
+  const user = await Admin.findOne({ email });
   if (!user) {
     throw new Error("Invalid credentials");
   }

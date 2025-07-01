@@ -1,13 +1,9 @@
 import mongoose from "mongoose";
 
-const UserSchema = new mongoose.Schema(
+const AdminSchema = new mongoose.Schema(
   {
     _id: {
       type: Number,
-      required: true,
-    },
-    name: {
-      type: String,
       required: true,
     },
     email: {
@@ -25,10 +21,6 @@ const UserSchema = new mongoose.Schema(
       enum: ["user", "admin", "owner"],
       default: "user",
     },
-    dc_id: {
-      type: Number,
-      default: null,
-    },
     date: {
       type: String,
       required: true,
@@ -37,17 +29,13 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    permission: {
-      type: Boolean,
-      default: true,
-    },
   },
   {
     timestamps: false,
-    collection: "users",
+    collection: "admins",
     _id: false,
   }
 );
 
-export default mongoose.models.User ||
-  mongoose.model("User", UserSchema, "users");
+export default mongoose.models.Admin ||
+  mongoose.model("Admin", AdminSchema, "admins");

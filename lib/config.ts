@@ -1,8 +1,6 @@
 export const config = {
   mongodb: {
     uri: process.env.MONGODB_URI!,
-    // dbName: "CYPHER",
-    collectionName: "CYPHER",
   },
   jwt: {
     secret: process.env.JWT_SECRET || "cypher-admin-panel-secret-key-2024",
