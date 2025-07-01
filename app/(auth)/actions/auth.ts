@@ -8,7 +8,7 @@ import {
   setSession,
   clearSession,
 } from "@/lib/auth";
-import Admin from "@/models/User";
+import Admin from "@/models/Admins";
 
 function generateUserId(): number {
   return Math.floor(Math.random() * 9000000000) + 1000000000;
