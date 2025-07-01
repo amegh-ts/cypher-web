@@ -5,9 +5,9 @@ import { useStore } from "@/hooks/use-store";
 import { SidebarToggle } from "./SidebarToggle";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Menu } from "./Menu";
+import { Bot } from "lucide-react";
 
 export function Sidebar() {
   const sidebar = useStore(useSidebar, (x) => x);
@@ -37,31 +37,30 @@ export function Sidebar() {
           asChild
         >
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Image
-              src="/assets/CompanyLogo.png"
-              alt="Company Logo"
-              width={150}
-              height={50}
+            <div
               className={cn(
-                "transition-[transform,opacity,display] ease-in-out duration-300",
+                "transition-[transform,opacity,display] ease-in-out duration-300 flex items-center gap-2 w-full",
                 !getOpenState()
                   ? "-translate-x-96 opacity-0 hidden"
                   : "translate-x-0 opacity-100"
               )}
-            />
+            >
+              <div>
+                <h1 className="text-lg font-semibold">CYPHER</h1>
+                <p className="text-xs text-muted-foreground">Bot Admin</p>
+              </div>
+            </div>
 
-            <Image
-              src="/assets/club_v1.svg"
-              alt=""
-              width={70}
-              height={70}
+            <div
               className={cn(
                 "transition-[transform,opacity,display] ease-in-out duration-300",
                 getOpenState()
                   ? "-translate-x-96 opacity-0 hidden"
                   : "translate-x-0 opacity-100"
               )}
-            />
+            >
+              <Bot />
+            </div>
           </Link>
         </Button>
 
