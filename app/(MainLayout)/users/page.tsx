@@ -45,7 +45,7 @@ export default function UsersPage() {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
-      queryKey: ["users", searchTerm],
+      queryKey: ["cypher-users", searchTerm],
       queryFn: async ({ pageParam = 0 }) => {
         const res = await fetch(
           `/api/users?skip=${pageParam}&limit=20&search=${searchTerm}`
