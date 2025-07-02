@@ -1,0 +1,243 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Search,
+  MoreHorizontal,
+  Filter,
+  Download,
+  FileVideo,
+  ExternalLink,
+} from "lucide-react";
+
+// Mock data - replace with actual MongoDB data
+const files = [
+  {
+    _id: "AgADPgMAAqxwOUc",
+    file_link: "https://t.me/c/2668099862/2",
+    file_name: "Encanto 2021 1080p BluRay 1400MB DD2 0 x264 GalaxyRG mkv",
+    file_size: 1687671681,
+    file_type: "video/x-matroska",
+  },
+  {
+    _id: "BgBDQhNAAryxPVd",
+    file_link: "https://t.me/c/2668099862/3",
+    file_name: "Spider-Man No Way Home 2021 1080p BluRay 2100MB x264",
+    file_size: 2201169920,
+    file_type: "video/mp4",
+  },
+  {
+    _id: "CgCDRiOAAszyQWe",
+    file_link: "https://t.me/c/2668099862/4",
+    file_name: "The Batman 2022 1080p WEBRip 1800MB x264",
+    file_size: 1887436800,
+    file_type: "video/x-matroska",
+  },
+];
+
+function formatFileSize(bytes: number) {
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  if (bytes === 0) return "0 Byte";
+  const i = Number.parseInt(
+    Math.floor(Math.log(bytes) / Math.log(1024)).toString()
+  );
+  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
+}
+
+export default function FilesPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredFiles = files.filter(
+    (file) =>
+      file.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      file._id.includes(searchTerm)
+  );
+
+  const totalSize = files.reduce((acc, file) => acc + file.file_size, 0);
+
+  return (
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Files</h2>
+          <p className="text-muted-foreground">
+            Manage movie files and media content
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Files</CardTitle>
+            <FileVideo className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{files.length}</div>
+            <p className="text-xs text-muted-foreground">+8% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Size</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatFileSize(totalSize)}
+            </div>
+            <p className="text-xs text-muted-foreground">Across all files</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Video Files</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {files.filter((f) => f.file_type.startsWith("video")).length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Movie and TV content
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg File Size</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatFileSize(totalSize / files.length)}
+            </div>
+            <p className="text-xs text-muted-foreground">Per file average</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>File Management</CardTitle>
+          <CardDescription>View and manage all uploaded files</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search files..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button variant="outline" size="sm">
+              <Filter className="mr-2 h-4 w-4" />
+              Filter
+            </Button>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>File Name</TableHead>
+                  <TableHead>File ID</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Link</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredFiles.map((file) => (
+                  <TableRow key={file._id}>
+                    <TableCell className="font-medium max-w-xs">
+                      <div className="flex items-center space-x-2">
+                        <FileVideo className="h-4 w-4 text-blue-600" />
+                        <span className="truncate" title={file.file_name}>
+                          {file.file_name}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {file._id}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {file.file_type.split("/")[1].toUpperCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatFileSize(file.file_size)}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="sm" asChild>
+                        <a
+                          href={file.file_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </Button>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuItem>View details</DropdownMenuItem>
+                          <DropdownMenuItem>Edit file</DropdownMenuItem>
+                          <DropdownMenuItem>Copy link</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-red-600">
+                            Delete file
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
