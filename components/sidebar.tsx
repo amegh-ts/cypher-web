@@ -26,7 +26,7 @@ export function Sidebar() {
       <div
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
-        className="relative h-full flex flex-col px-3 py-4 shadow-md dark:shadow-zinc-800"
+        className="relative h-full flex flex-col px-3  shadow-md"
       >
         <Button
           className={cn(
@@ -64,7 +64,20 @@ export function Sidebar() {
           </Link>
         </Button>
 
-        <Menu isOpen={getOpenState()} />
+        <div className="flex-1 min-h-0">
+          <Menu isOpen={getOpenState()} />
+        </div>
+
+        <div
+          className={cn(
+            "mt-auto py-3 text-sm text-muted-foreground text-center transition-all duration-300 ease-in-out",
+            getOpenState()
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 -translate-y-4 pointer-events-none"
+          )}
+        >
+          © 2025 Cypher
+        </div>
       </div>
     </aside>
   );
