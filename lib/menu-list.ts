@@ -54,14 +54,14 @@ export function getMenuList(pathname: string): Group[] {
     {
       groupLabel: "Admin",
       menus: [
-        { href: "/dashboard/users", label: "Users", icon: UserCog },
-        { href: "/dashboard/files", label: "Files", icon: Network },
+        { href: "/users", label: "Users", icon: UserCog },
+        { href: "/files", label: "Files", icon: Network },
         {
-          href: "/dashboard/feedback",
+          href: "/feedback",
           label: "Feedback",
           icon: MessageCircleDashed,
         },
-        { href: "/dashboard/settings", label: "Settings", icon: PanelTop },
+        { href: "/settings", label: "Settings", icon: PanelTop },
       ],
     },
   ];
