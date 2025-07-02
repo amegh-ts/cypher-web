@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -35,31 +35,9 @@ import {
   FileVideo,
   ExternalLink,
 } from "lucide-react";
-
-// Mock data - replace with actual MongoDB data
-const files = [
-  {
-    _id: "AgADPgMAAqxwOUc",
-    file_link: "https://t.me/c/2668099862/2",
-    file_name: "Encanto 2021 1080p BluRay 1400MB DD2 0 x264 GalaxyRG mkv",
-    file_size: 1687671681,
-    file_type: "video/x-matroska",
-  },
-  {
-    _id: "BgBDQhNAAryxPVd",
-    file_link: "https://t.me/c/2668099862/3",
-    file_name: "Spider-Man No Way Home 2021 1080p BluRay 2100MB x264",
-    file_size: 2201169920,
-    file_type: "video/mp4",
-  },
-  {
-    _id: "CgCDRiOAAszyQWe",
-    file_link: "https://t.me/c/2668099862/4",
-    file_name: "The Batman 2022 1080p WEBRip 1800MB x264",
-    file_size: 1887436800,
-    file_type: "video/x-matroska",
-  },
-];
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function formatFileSize(bytes: number) {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
@@ -72,14 +50,39 @@ function formatFileSize(bytes: number) {
 
 export default function FilesPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { ref, inView } = useInView();
 
-  const filteredFiles = files.filter(
-    (file) =>
-      file.file_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      file._id.includes(searchTerm)
-  );
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery({
+      queryKey: ["cypher-files", searchTerm],
+      queryFn: async ({ pageParam = 0 }) => {
+        const res = await fetch(
+          `/api/files?skip=${pageParam}&limit=20&search=${searchTerm}`
+        );
+        const data = await res.json();
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, allPages) => {
+        return lastPage.length < 20 ? undefined : allPages.length * 20;
+      },
+    });
 
-  const totalSize = files.reduce((acc, file) => acc + file.file_size, 0);
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["file-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/file-stats");
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const filteredFiles = data?.pages.flat() || [];
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -105,8 +108,10 @@ export default function FilesPage() {
             <FileVideo className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{files.length}</div>
-            <p className="text-xs text-muted-foreground">+8% from last month</p>
+            <div className="text-2xl font-bold">
+              {statsLoading ? "..." : stats?.totalFiles ?? 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Total indexed files</p>
           </CardContent>
         </Card>
         <Card>
@@ -115,7 +120,7 @@ export default function FilesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatFileSize(totalSize)}
+              {statsLoading ? "..." : formatFileSize(stats?.totalSize) ?? 0}
             </div>
             <p className="text-xs text-muted-foreground">Across all files</p>
           </CardContent>
@@ -126,7 +131,9 @@ export default function FilesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {files.filter((f) => f.file_type.startsWith("video")).length}
+              <div className="text-2xl font-bold">
+                {statsLoading ? "..." : stats?.videoCount ?? 0}
+              </div>{" "}
             </div>
             <p className="text-xs text-muted-foreground">
               Movie and TV content
@@ -139,7 +146,7 @@ export default function FilesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatFileSize(totalSize / files.length)}
+              {statsLoading ? "..." : formatFileSize(stats?.avgSize) ?? 0}{" "}
             </div>
             <p className="text-xs text-muted-foreground">Per file average</p>
           </CardContent>
@@ -181,58 +188,100 @@ export default function FilesPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredFiles.map((file) => (
-                  <TableRow key={file._id}>
-                    <TableCell className="font-medium max-w-xs">
-                      <div className="flex items-center space-x-2">
-                        <FileVideo className="h-4 w-4 text-blue-600" />
-                        <span className="truncate" title={file.file_name}>
-                          {file.file_name}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">
-                      {file._id}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {file.file_type.split("/")[1].toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatFileSize(file.file_size)}</TableCell>
-                    <TableCell>
-                      <Button variant="ghost" size="sm" asChild>
-                        <a
-                          href={file.file_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </Button>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                {isLoading
+                  ? [...Array(5)].map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell>
+                          <Skeleton className="h-4 w-24" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-12" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-12" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-12" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-12" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-12" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  : filteredFiles.map((file) => (
+                      <TableRow key={file._id}>
+                        <TableCell className="font-medium max-w-xs">
+                          <div className="flex items-center space-x-2">
+                            <FileVideo className="h-4 w-4 text-blue-600" />
+                            <span className="truncate" title={file.file_name}>
+                              {file.file_name}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">
+                          {file._id}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {file.file_type.split("/")[1].toUpperCase()}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{formatFileSize(file.file_size)}</TableCell>
+                        <TableCell>
+                          <Button variant="ghost" size="sm" asChild>
+                            {/* <a
+                              href={file.file_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </a> */}
+                            <a
+                              href={`https://t.me/cypher_v2_bot?start=${file._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit file</DropdownMenuItem>
-                          <DropdownMenuItem>Copy link</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
-                            Delete file
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem>View details</DropdownMenuItem>
+                              <DropdownMenuItem>Edit file</DropdownMenuItem>
+                              <DropdownMenuItem>Copy link</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-red-600">
+                                Delete file
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                <TableRow ref={ref}>
+                  <TableCell
+                    colSpan={6}
+                    className="p-4 text-center text-muted-foreground"
+                  >
+                    {isFetchingNextPage
+                      ? "Loading more..."
+                      : hasNextPage
+                      ? "Scroll to load more"
+                      : "No more files"}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>
