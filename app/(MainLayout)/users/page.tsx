@@ -38,7 +38,6 @@ import {
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Skeleton } from "@/components/ui/skeleton";
-import MainLayout from "@/components/main-layout";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -77,7 +76,7 @@ export default function UsersPage() {
   const filteredUsers = data?.pages.flat() || [];
 
   return (
-    <MainLayout>
+    <div>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="flex items-center justify-between">
           <div>
@@ -293,6 +292,6 @@ export default function UsersPage() {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
+    </div>
   );
 }
