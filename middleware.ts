@@ -4,17 +4,17 @@ import { config as sessionConfig } from "@/lib/config";
 
 const protectedRoutes = [
   "/dashboard",
-  "/dashboard/users",
-  "/dashboard/files",
-  "/dashboard/feedback",
-  "/dashboard/settings",
+  "/users",
+  "/files",
+  "/feedback",
+  "/settings",
 ];
 const adminRoutes = [
   "/dashboard",
-  "/dashboard/users",
-  "/dashboard/files",
-  "/dashboard/feedback",
-  "/dashboard/settings",
+  "/users",
+  "/files",
+  "/feedback",
+  "/settings",
 ];
 const authRoutes = ["/login", "/register"];
 

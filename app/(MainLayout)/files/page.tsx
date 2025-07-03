@@ -38,6 +38,7 @@ import {
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { apiClient } from "@/utils/axios";
 
 function formatFileSize(bytes: number) {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
@@ -56,11 +57,11 @@ export default function FilesPage() {
     useInfiniteQuery({
       queryKey: ["cypher-files", searchTerm],
       queryFn: async ({ pageParam = 0 }) => {
-        const res = await fetch(
+        const res = await apiClient.get(
           `/api/files?skip=${pageParam}&limit=20&search=${searchTerm}`
         );
-        const data = await res.json();
-        return data;
+
+        return res.data;
       },
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPages) => {
@@ -71,8 +72,8 @@ export default function FilesPage() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["file-stats"],
     queryFn: async () => {
-      const res = await fetch("/api/file-stats");
-      return res.json();
+      const res = await apiClient.get("/api/file-stats");
+      return res.data;
     },
   });
 
