@@ -10,10 +10,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Sun, Moon, Monitor } from "lucide-react";
+import { Sun, Moon, Monitor } from "lucide-react";
 import { useTheme } from "next-themes";
 import { logoutAction } from "@/app/(auth)/actions/auth";
 import { MobileMenu } from "./MobileMenu";
+import NavNotifications from "./Notifications";
 
 export function Header() {
   const { setTheme } = useTheme();
@@ -52,12 +53,14 @@ export function Header() {
             <MobileMenu />
           </div>
 
-          <Button variant="ghost" size="icon" className="relative">
+          {/* <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-4 w-4" />
             <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white">
               3
             </span>
-          </Button>
+          </Button> */}
+
+          <NavNotifications />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
