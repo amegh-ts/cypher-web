@@ -10,8 +10,6 @@ const withAuth = (): AxiosInstance => {
   instance.interceptors.request.use((config) => {
     const token = Cookies.get("cypher-session");
 
-    console.log("token", token);
-
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
