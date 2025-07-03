@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import connectDB from "@/lib/mongodb";
 import File from "@/models/Files";
-import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { initIndexes } from "@/lib/initIndexes";
 
 export async function GET() {
   try {
@@ -14,53 +15,55 @@ export async function GET() {
     }
 
     const decoded = await verifyToken(token);
-    if (!decoded || !decoded.userId) {
+    if (!decoded?.userId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
     await connectDB();
+    await initIndexes();
 
-    const files = await File.find(
-      {},
+    const [stats] = await File.aggregate([
       {
-        file_size: 1,
-        file_type: 1,
-        file_name: 1,
-      }
-    ).lean();
+        $facet: {
+          total: [{ $count: "totalFiles" }],
+          size: [{ $group: { _id: null, totalSize: { $sum: "$file_size" } } }],
+          videoCount: [
+            { $match: { file_type: { $regex: "^video" } } },
+            { $count: "count" },
+          ],
+          typeCounts: [
+            {
+              $group: {
+                _id: { $arrayElemAt: [{ $split: ["$file_type", "/"] }, 0] },
+                count: { $sum: 1 },
+              },
+            },
+          ],
+        },
+      },
+    ]);
 
-    const totalFiles = files.length;
-    const totalSize = files.reduce(
-      (acc, file) => acc + (file.file_size || 0),
-      0
-    );
+    const totalFiles = stats.total?.[0]?.totalFiles || 0;
+    const totalSize = stats.size?.[0]?.totalSize || 0;
     const avgSize = totalFiles > 0 ? totalSize / totalFiles : 0;
-    const videoCount = files.filter((f) =>
-      f.file_type?.startsWith("video")
-    ).length;
+    const videoCount = stats.videoCount?.[0]?.count || 0;
 
-    const extMap: Record<string, number> = {};
-    const typeMap: Record<string, number> = {};
-
-    files.forEach((file) => {
-      const ext = file.file_name?.split(".").pop()?.toLowerCase() || "unknown";
-      extMap[ext] = (extMap[ext] || 0) + 1;
-
-      const type = file.file_type?.split("/")?.[0] || "unknown";
-      typeMap[type] = (typeMap[type] || 0) + 1;
-    });
+    const typeCounts: Record<string, number> = {};
+    for (const t of stats.typeCounts || []) {
+      typeCounts[t._id || "unknown"] = t.count;
+    }
 
     return NextResponse.json({
       totalFiles,
       totalSize,
       avgSize,
       videoCount,
-      typeCounts: typeMap,
+      typeCounts,
     });
-  } catch (error) {
-    console.error("GET /api/file-stats error:", error);
+  } catch (err) {
+    console.error("GET /api/file-stats error:", err);
     return NextResponse.json(
-      { error: "Failed to fetch file stats" },
+      { error: "Failed to fetch stats" },
       { status: 500 }
     );
   }
