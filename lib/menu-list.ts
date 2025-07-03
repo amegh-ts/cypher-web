@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  Home,
   UserCog,
   Group,
   Network,
   MessageCircleDashed,
   PanelTop,
-  Briefcase,
-  MousePointerSquareDashed,
-  Rss,
-  GalleryVertical,
   LayoutDashboard,
+  ListOrdered,
 } from "lucide-react";
 
 export type Submenu = {
@@ -60,6 +56,11 @@ export function getMenuList(pathname: string): Group[] {
           href: "/feedback",
           label: "Feedback",
           icon: MessageCircleDashed,
+        },
+        {
+          href: "/logs",
+          label: "Logs",
+          icon: ListOrdered,
         },
         { href: "/settings", label: "Settings", icon: PanelTop },
       ],
