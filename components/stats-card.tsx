@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 interface StatsCardProps {
   title: string;
   value: string;
-  description: string;
+  description?: string;
   icon: LucideIcon;
-  trend: "up" | "down" | "neutral";
+  trend?: "up" | "down" | "neutral";
+  isLoading?: boolean;
 }
 
 export function StatsCard({
@@ -16,6 +17,7 @@ export function StatsCard({
   description,
   icon: Icon,
   trend,
+  isLoading,
 }: StatsCardProps) {
   const TrendIcon =
     trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
@@ -27,18 +29,22 @@ export function StatsCard({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <div className="flex items-center text-xs text-muted-foreground">
-          <TrendIcon
-            className={cn(
-              "mr-1 h-3 w-3",
-              trend === "up" && "text-green-600",
-              trend === "down" && "text-red-600",
-              trend === "neutral" && "text-gray-600"
+        <div className="text-2xl font-bold">{isLoading ? "..." : value}</div>
+        {description && (
+          <div className="flex items-center text-xs text-muted-foreground">
+            {trend && (
+              <TrendIcon
+                className={cn(
+                  "mr-1 h-3 w-3",
+                  trend === "up" && "text-green-600",
+                  trend === "down" && "text-red-600",
+                  trend === "neutral" && "text-gray-600"
+                )}
+              />
             )}
-          />
-          {description}
-        </div>
+            {description}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
