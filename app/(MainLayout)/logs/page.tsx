@@ -7,6 +7,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -101,8 +102,10 @@ const Logs = () => {
         </div>
 
         <Card>
-          <CardTitle>Log Management</CardTitle>
-          <CardDescription>View and manage all bot logs</CardDescription>
+          <CardHeader>
+            <CardTitle>Log Management</CardTitle>
+            <CardDescription>View and manage all bot logs</CardDescription>
+          </CardHeader>
           <CardContent>
             <div className="flex items-center space-x-2 mb-4">
               <div className="relative flex-1 max-w-sm">
