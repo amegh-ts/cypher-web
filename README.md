@@ -33,7 +33,7 @@ This is an admin panel build to manage CYPHER.
 
 ## 📂 Folder Structure
 
-````bash
+```bash
 .
 ├── app/
 │   ├── dashboard/          # Protected routes
@@ -50,6 +50,7 @@ This is an admin panel build to manage CYPHER.
 ├── middleware.ts          # Global route protection & role access
 ├── .env.local             # Environment variables
 
+```
 
 ---
 
@@ -62,7 +63,7 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<dbname>?r
 JWT_SECRET=your_super_secret_key
 SESSION_COOKIE_NAME=cypher-session
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-````
+```
 
 ---
 
