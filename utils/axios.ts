@@ -4,7 +4,7 @@ import axios, { AxiosError, AxiosInstance } from "axios";
 const withAuth = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: "",
-    timeout: 15000,
+    timeout: 60000, // 60 seconds
   });
 
   instance.interceptors.request.use((config) => {
