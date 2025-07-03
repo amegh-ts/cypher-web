@@ -64,13 +64,14 @@ export function Menu({ isOpen }: MenuProps) {
                       {/* <Tooltip delayDuration={100}> */}
                       {/* <TooltipTrigger asChild> */}
                       <Button
-                        variant={
+                        variant="ghost"
+                        className={cn(
+                          "w-full justify-start h-10 mb-1 px-4 rounded-md transition-colors hover:bg-sidebar-accent",
                           (active === undefined && pathname.startsWith(href)) ||
-                          active
-                            ? "secondary"
-                            : "ghost"
-                        }
-                        className="w-full justify-start h-10 mb-1"
+                            active
+                            ? "text-sidebar-primary bg-sidebar-accent"
+                            : "bg-transparent text-sidebar-foreground"
+                        )}
                         asChild
                       >
                         <Link href={href}>
