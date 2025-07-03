@@ -38,6 +38,7 @@ import {
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { apiClient } from "@/utils/axios";
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -47,11 +48,11 @@ export default function UsersPage() {
     useInfiniteQuery({
       queryKey: ["cypher-users", searchTerm],
       queryFn: async ({ pageParam = 0 }) => {
-        const res = await fetch(
+        const res = await apiClient.get(
           `/api/users?skip=${pageParam}&limit=20&search=${searchTerm}`
         );
-        const data = await res.json();
-        return data;
+
+        return res.data;
       },
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPages) => {
