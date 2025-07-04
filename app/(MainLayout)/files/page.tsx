@@ -233,15 +233,8 @@ export default function FilesPage() {
                         <TableCell>{formatFileSize(file.file_size)}</TableCell>
                         <TableCell>
                           <Button variant="ghost" size="sm" asChild>
-                            {/* <a
-                              href={file.file_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <ExternalLink className="h-3 w-3" />
-                            </a> */}
                             <a
-                              href={`https://t.me/cypher_v2_bot?start=${file._id}`}
+                              href={`https://t.me/cypher_v2_bot?start=sendfile-_-${file._id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >

@@ -10,10 +10,6 @@ import {
 } from "@/lib/auth";
 import Admin from "@/models/Admins";
 
-function generateUserId(): number {
-  return Math.floor(Math.random() * 9000000000) + 1000000000;
-}
-
 function getCurrentDateTime() {
   const now = new Date();
   const date = now.toLocaleDateString("en-GB").replace(/\//g, "-");
@@ -21,28 +17,30 @@ function getCurrentDateTime() {
   return { date, time };
 }
 
-export async function registerAction(formData: FormData): Promise<void> {
+export async function registerAction(
+  prevState: { message: string } | undefined,
+  formData: FormData
+): Promise<{ message: string }> {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
   if (!name || !email || !password) {
-    throw new Error("All fields are required");
+    return { message: "Name, email, and password are required" };
   }
 
   await connectDB();
 
   const existingUser = await Admin.findOne({ email });
   if (existingUser) {
-    throw new Error("User already exists");
+    return { message: "User already exists" };
   }
 
-  const userId = generateUserId();
   const { date, time } = getCurrentDateTime();
 
   const hashedPassword = hashPassword(password);
   const user = await Admin.create({
-    _id: userId,
+    userId: crypto.randomUUID(),
     email,
     password: hashedPassword,
     role: "user",
@@ -55,24 +53,27 @@ export async function registerAction(formData: FormData): Promise<void> {
   redirect("/dashboard");
 }
 
-export async function loginAction(formData: FormData): Promise<void> {
+export async function loginAction(
+  prevState: { message: string } | undefined,
+  formData: FormData
+): Promise<{ message: string }> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
   if (!email || !password) {
-    throw new Error("Email and password are required");
+    return { message: "Email and password are required" };
   }
 
   await connectDB();
 
   const user = await Admin.findOne({ email });
   if (!user) {
-    throw new Error("Invalid credentials");
+    return { message: "User not found" };
   }
 
   const isValid = verifyPassword(password, user.password);
   if (!isValid) {
-    throw new Error("Invalid credentials");
+    return { message: "Invalid password" };
   }
 
   await setSession(user);

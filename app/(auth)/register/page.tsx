@@ -1,3 +1,4 @@
+"use client";
 import {
   Card,
   CardContent,
@@ -10,8 +11,13 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { registerAction } from "../actions/auth";
+import { useFormState } from "react-dom";
+
+const initialState = { message: "" };
 
 export default function RegisterPage() {
+  const [state, formAction] = useFormState(registerAction, initialState);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center px-4">
       <Card className="w-full max-w-md backdrop-blur-md bg-white/5 border border-white/10 shadow-2xl rounded-2xl animate-fade-in">
@@ -24,7 +30,7 @@ export default function RegisterPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={registerAction} className="space-y-6">
+          <form action={formAction} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-white">
                 Full Name
@@ -64,6 +70,9 @@ export default function RegisterPage() {
                 className="bg-gray-900 text-white placeholder-gray-500 border border-gray-700 focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            {state?.message && (
+              <div className="text-red-500 text-sm">{state.message}</div>
+            )}
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition"
