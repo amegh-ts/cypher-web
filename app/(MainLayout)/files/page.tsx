@@ -72,7 +72,7 @@ export default function FilesPage() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["file-stats"],
     queryFn: async () => {
-      const res = await apiClient.get("/api/file-stats");
+      const res = await apiClient.get("/api/files/stats");
       return res.data;
     },
   });

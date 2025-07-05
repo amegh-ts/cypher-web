@@ -47,7 +47,7 @@ export async function getSession() {
 
 export async function setSession(user: Record<string, any>) {
   const token = await createToken({
-    userId: user._id,
+    userId: user.userId,
     email: user.email,
     name: user.name,
     role: user.role,

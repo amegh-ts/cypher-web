@@ -34,7 +34,7 @@ export async function GET() {
 
     return NextResponse.json({ total, active, blocked, newToday });
   } catch (error) {
-    console.error("GET /api/user-stats error:", error);
+    console.error("GET /api/users/stats error:", error);
     return NextResponse.json(
       { error: "Failed to fetch stats" },
       { status: 500 }

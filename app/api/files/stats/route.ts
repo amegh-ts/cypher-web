@@ -61,7 +61,7 @@ export async function GET() {
       typeCounts,
     });
   } catch (err) {
-    console.error("GET /api/file-stats error:", err);
+    console.error("GET /api/files/stats error:", err);
     return NextResponse.json(
       { error: "Failed to fetch stats" },
       { status: 500 }

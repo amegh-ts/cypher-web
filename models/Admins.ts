@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const AdminSchema = new mongoose.Schema(
   {
-    _id: {
-      type: Number,
+    userId: {
+      type: String,
       required: true,
     },
     email: {
@@ -33,7 +33,6 @@ const AdminSchema = new mongoose.Schema(
   {
     timestamps: false,
     collection: "admins",
-    _id: false,
   }
 );
 

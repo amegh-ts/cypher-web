@@ -63,7 +63,7 @@ export default function UsersPage() {
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["user-stats"],
     queryFn: async () => {
-      const res = await apiClient.get("/api/user-stats");
+      const res = await apiClient.get("/api/users/stats");
       return res.data;
     },
   });
