@@ -53,8 +53,8 @@ export function getMenuList(pathname: string): Group[] {
         { href: "/users", label: "Users", icon: UserCog },
         { href: "/files", label: "Files", icon: Network },
         {
-          href: "/feedback",
-          label: "Feedback",
+          href: "/feedbacks",
+          label: "Feedbacks",
           icon: MessageCircleDashed,
         },
         {
