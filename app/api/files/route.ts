@@ -28,7 +28,11 @@ export async function GET(request: Request) {
       ? { file_name: { $regex: search, $options: "i" } }
       : {};
 
-    const files = await File.find(query).skip(skip).limit(limit).lean();
+    const files = await File.find(query)
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     return NextResponse.json(files);
   } catch (error) {
