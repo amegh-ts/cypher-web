@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     }
 
     const feedbacks = await Feedbacks.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
