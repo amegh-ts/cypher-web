@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import connectDB from "@/lib/mongodb";
 import File from "@/models/Files";
 import { verifyToken } from "@/lib/auth";
-import { initIndexes } from "@/lib/initIndexes";
+import { initIndexes } from "@/lib/index/fileIndexes";
 
 export async function GET() {
   try {
