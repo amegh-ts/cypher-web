@@ -11,10 +11,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { apiClient } from "@/utils/axios";
+import { useQuery } from "@tanstack/react-query";
 import { FileVideo, MessageSquare, TrendingUp, Users } from "lucide-react";
 import React from "react";
 
 const Dashboard = () => {
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
+      const res = await apiClient.get("/api/dashboard/stats");
+      return res.data;
+    },
+  });
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
