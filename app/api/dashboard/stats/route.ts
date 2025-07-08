@@ -1,21 +1,24 @@
+// /app/api/dashboard/stats/route.ts
+import { NextResponse } from "next/server";
+import mongoose from "mongoose";
+import User from "@/models/User";
 import Feedbacks from "@/models/Feedbacks";
 import Files from "@/models/Files";
-import Logs from "@/models/Logs";
-import User from "@/models/User";
-import mongoose from "mongoose";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   await mongoose.connect(process.env.MONGODB_URI!);
+
   const now = new Date();
+  const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+  const lastMonth = String(now.getMonth()).padStart(2, "0");
 
   // Users
   const totalUsers = await User.countDocuments();
   const thisMonthUsers = await User.countDocuments({
-    date: { $regex: `.*-${String(now.getMonth() + 1).padStart(2, "0")}-.*` },
+    date: { $regex: `.*-${currentMonth}-.*` },
   });
   const lastMonthUsers = await User.countDocuments({
-    date: { $regex: `.*-${String(now.getMonth()).padStart(2, "0")}-.*` },
+    date: { $regex: `.*-${lastMonth}-.*` },
   });
 
   const userGrowth =
@@ -29,7 +32,7 @@ export async function GET() {
     status: "Pending",
   });
   const feedbackThisMonth = await Feedbacks.countDocuments({
-    date: { $regex: `.*-${String(now.getMonth() + 1).padStart(2, "0")}-.*` },
+    date: { $regex: `.*-${currentMonth}-.*` },
   });
 
   // Files
@@ -39,21 +42,46 @@ export async function GET() {
   ]);
   const totalStorageUsed = fileSizes[0]?.totalSize || 0;
 
-  // Monthly Graph Data (last 6 months)
-  const logsByMonth = await Logs.aggregate([
+  // Graph Data (aggregated)
+  const usersByMonth = await User.aggregate([
     {
       $group: {
         _id: { $substr: ["$date", 3, 2] },
         count: { $sum: 1 },
       },
     },
-    { $sort: { _id: 1 } },
   ]);
 
-  const graph = logsByMonth.map((entry) => ({
-    month: entry._id,
-    actions: entry.count,
-  }));
+  const filesByMonth = await Files.aggregate([
+    {
+      $group: {
+        _id: { $toString: { $month: "$created_at" } },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const monthlyStats: Record<string, { users: number; files: number }> = {};
+
+  usersByMonth.forEach((entry) => {
+    const month = entry._id;
+    if (!monthlyStats[month]) monthlyStats[month] = { users: 0, files: 0 };
+    monthlyStats[month].users = entry.count;
+  });
+
+  filesByMonth.forEach((entry) => {
+    const month = entry._id.padStart(2, "0");
+    if (!monthlyStats[month]) monthlyStats[month] = { users: 0, files: 0 };
+    monthlyStats[month].files = entry.count;
+  });
+
+  const graph = Object.keys(monthlyStats)
+    .map((month) => ({
+      month,
+      users: monthlyStats[month].users,
+      files: monthlyStats[month].files,
+    }))
+    .sort((a, b) => Number(a.month) - Number(b.month));
 
   return NextResponse.json({
     totalUsers,
