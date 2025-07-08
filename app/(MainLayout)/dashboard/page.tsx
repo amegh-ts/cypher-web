@@ -11,10 +11,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileVideo, MessageSquare, TrendingUp, Users } from "lucide-react";
+import { apiClient } from "@/utils/axios";
+import { useQuery } from "@tanstack/react-query";
+import { FileVideo, HardDrive, MessageSquare, Users } from "lucide-react";
 import React from "react";
 
 const Dashboard = () => {
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => {
+      const res = await apiClient.get("/api/dashboard/stats");
+      return res.data;
+    },
+  });
+
+  function formatFileSize(bytes: number) {
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    if (bytes === 0) return "0 Byte";
+    const i = Number.parseInt(
+      Math.floor(Math.log(bytes) / Math.log(1024)).toString()
+    );
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -30,31 +49,48 @@ const Dashboard = () => {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Users"
-          value="2,847"
-          description="+12% from last month"
+          value={stats?.totalUsers || 0}
+          description={`${stats?.userGrowth}% from last month`}
           icon={Users}
-          trend="up"
+          trend={
+            stats?.userGrowth === 0
+              ? "neutral"
+              : stats?.userGrowth > 0
+              ? "up"
+              : "down"
+          }
+          isLoading={statsLoading}
         />
         <StatsCard
           title="Active Files"
-          value="1,234"
-          description="+8% from last month"
+          value={stats?.totalFiles || 0}
+          description={`${stats?.fileGrowth}% from last month`}
           icon={FileVideo}
-          trend="up"
+          trend={
+            stats?.fileGrowth === 0
+              ? "neutral"
+              : stats?.fileGrowth > 0
+              ? "up"
+              : "down"
+          }
         />
         <StatsCard
           title="Pending Feedback"
-          value="23"
-          description="-5% from last month"
+          value={stats?.pendingFeedbacks || 0}
+          description={`${stats?.feedbackGrowth}% from last month`}
           icon={MessageSquare}
-          trend="down"
+          trend={
+            stats?.feedbackGrowth === 0
+              ? "neutral"
+              : stats?.feedbackGrowth > 0
+              ? "up"
+              : "down"
+          }
         />
         <StatsCard
           title="Storage Used"
-          value="847 GB"
-          description="78% of total capacity"
-          icon={TrendingUp}
-          trend="neutral"
+          value={formatFileSize(stats?.totalStorageUsed || 0)}
+          icon={HardDrive}
         />
       </div>
 
@@ -64,9 +100,10 @@ const Dashboard = () => {
             <CardTitle>Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <ChartOverview />
+            <ChartOverview data={stats?.graph} loading={statsLoading} />
           </CardContent>
         </Card>
+
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>

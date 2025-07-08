@@ -1,5 +1,5 @@
 import File from "@/models/Files";
-import connectDB from "./mongodb";
+import connectDB from "../mongodb";
 
 let indexesInitialized = false;
 
