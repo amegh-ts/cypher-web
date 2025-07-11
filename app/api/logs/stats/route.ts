@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 import Logs from "@/models/Logs";
+import { initLogIndexes } from "@/lib/index/logIndex";
 
 export async function GET() {
   try {
@@ -19,6 +20,7 @@ export async function GET() {
     }
 
     await connectDB();
+    await initLogIndexes();
 
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, "0");
