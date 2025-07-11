@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import connectDB from "@/lib/mongodb";
 import File from "@/models/Files";
 import { verifyToken } from "@/lib/auth";
-import { initIndexes } from "@/lib/index/fileIndexes";
+import { initFileIndexes } from "@/lib/index/fileIndex";
 
 export async function GET() {
   try {
@@ -20,7 +20,7 @@ export async function GET() {
     }
 
     await connectDB();
-    await initIndexes();
+    await initFileIndexes();
 
     const [stats] = await File.aggregate([
       {
