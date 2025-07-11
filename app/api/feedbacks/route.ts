@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const skip = parseInt(searchParams.get("skip") || "0");
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
-    const types = searchParams.get("type")?.split(",").filter(Boolean) || [];
+    const status = searchParams.get("status")?.split(",").filter(Boolean) || [];
 
     const query: any = {};
 
@@ -39,8 +39,8 @@ export async function GET(request: Request) {
       }
     }
 
-    if (types.length > 0) {
-      query.type = { $in: types };
+    if (status.length > 0) {
+      query.status = { $in: status };
     }
 
     const feedbacks = await Feedbacks.find(query)
