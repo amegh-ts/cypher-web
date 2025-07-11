@@ -3,7 +3,7 @@ import connectDB from "../mongodb";
 
 let indexesInitialized = false;
 
-export async function initIndexes() {
+export async function initFileIndexes() {
   if (indexesInitialized) return;
 
   await connectDB();

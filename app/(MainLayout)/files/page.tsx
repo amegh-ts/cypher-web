@@ -227,7 +227,9 @@ export default function FilesPage() {
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline">
-                            {file.file_type.split("/")[1].toUpperCase()}
+                            {file.file_type
+                              ? file.file_type.split("/")[1].toUpperCase()
+                              : "N/A"}
                           </Badge>
                         </TableCell>
                         <TableCell>{formatFileSize(file.file_size)}</TableCell>

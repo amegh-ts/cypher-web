@@ -3,6 +3,7 @@ import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
+import { initUserIndexes } from "@/lib/index/userIndex";
 
 export async function GET() {
   try {
@@ -18,6 +19,7 @@ export async function GET() {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
     await connectDB();
+    await initUserIndexes();
 
     const total = await User.countDocuments();
     const active = await User.countDocuments({ permission: true });

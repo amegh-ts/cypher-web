@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/utils/axios";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import {
   CalendarDays,
   CheckCircle,
   Clock,
   Download,
   MessageSquare,
+  MoreHorizontal,
   Search,
 } from "lucide-react";
 import {
@@ -38,35 +39,72 @@ import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Feedbacks = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [type, setType] = useState("");
+  const [status, setStatus] = useState("");
   const { ref, inView } = useInView();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: ["cypher-feedbacks", searchTerm, type],
-      queryFn: async ({ pageParam = 0 }) => {
-        const res = await apiClient.get(
-          `/api/feedbacks?skip=${pageParam}&limit=20&search=${searchTerm}&type=${type}`
-        );
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["cypher-feedbacks", searchTerm, status],
+    queryFn: async ({ pageParam = 0 }) => {
+      const res = await apiClient.get(
+        `/api/feedbacks?skip=${pageParam}&limit=20&search=${searchTerm}&status=${status}`
+      );
 
-        return res.data;
-      },
-      initialPageParam: 0,
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.length < 20 ? undefined : allPages.length * 20;
-      },
-    });
+      return res.data;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length < 20 ? undefined : allPages.length * 20;
+    },
+  });
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const {
+    data: stats,
+    isLoading: statsLoading,
+    refetch: statsRefetch,
+  } = useQuery({
     queryKey: ["feedback-stats"],
     queryFn: async () => {
       const res = await apiClient.get("/api/feedbacks/stats");
       return res.data;
     },
   });
+
+  const editFeedback = useMutation({
+    mutationFn: async (data: { id: string; status: string }) => {
+      const res = await apiClient.patch(`/api/feedbacks/${data.id}`, {
+        status: data.status,
+      });
+      return res.data;
+    },
+
+    onSuccess: () => {
+      refetch();
+      statsRefetch();
+    },
+  });
+
+  const handleStatusUpdate = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "Pending" ? "Resolved" : "Pending";
+    await editFeedback.mutateAsync({ id, status: nextStatus });
+  };
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -137,8 +175,8 @@ const Feedbacks = () => {
             </div>
 
             <ApiFilter
-              selected={type.split(",")}
-              onChange={(types) => setType(types.join(","))}
+              selected={status.split(",")}
+              onChange={(status) => setStatus(status.join(","))}
               logTypes={["Resolved", "Pending"]}
             />
           </div>
@@ -147,12 +185,12 @@ const Feedbacks = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Type</TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Feedback</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Ticket ID</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -174,14 +212,14 @@ const Feedbacks = () => {
                         <TableCell>
                           <Skeleton className="h-4 w-[100px]" />
                         </TableCell>
-                        <TableCell>
+
+                        <TableCell className="text-right">
                           <Skeleton className="h-4 w-[100px]" />
                         </TableCell>
                       </TableRow>
                     ))
                   : filteredFeedbacks.map((fb) => (
                       <TableRow key={fb._id}>
-                        <TableCell className="capitalize">{fb.type}</TableCell>
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">{fb.username}</span>
@@ -190,6 +228,7 @@ const Feedbacks = () => {
                             </span>
                           </div>
                         </TableCell>
+
                         <TableCell>
                           {fb.date} – {fb.time}
                         </TableCell>
@@ -205,19 +244,51 @@ const Feedbacks = () => {
                             </TooltipContent>
                           </Tooltip>
                         </TableCell>
+                        <TableCell className="capitalize flex flex-col gap-1">
+                          <Badge variant="default">{fb.ticket_id}</Badge>
+                          <Badge
+                            variant={
+                              fb.type === "report" ? "destructive" : "secondary"
+                            }
+                          >
+                            {fb.type}
+                          </Badge>
+                        </TableCell>
                         <TableCell>
                           <Badge
                             className={
                               fb.status === "Resolved"
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-green-200 text-green-800"
                                 : "bg-yellow-100 text-yellow-700"
                             }
                           >
                             {fb.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          <Badge variant="default">{fb.ticket_id}</Badge>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem>View details</DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive cursor-pointer"
+                                onClick={() =>
+                                  handleStatusUpdate(fb._id, fb.status)
+                                }
+                              >
+                                {fb.status === "Pending"
+                                  ? "Resolve"
+                                  : "Un-resolve"}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
