@@ -222,9 +222,7 @@ export default function UsersPage() {
                             <div className="flex items-center space-x-2">
                               <Avatar className="h-8 w-8">
                                 <AvatarImage src="/placeholder-user.jpg" />
-                                <AvatarFallback>
-                                  {user.name.charAt(0).toUpperCase()}
-                                </AvatarFallback>
+                                <AvatarFallback>{user.name}</AvatarFallback>
                               </Avatar>
                               <span>{user.name}</span>
                             </div>
