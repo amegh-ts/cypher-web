@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { apiClient } from "@/utils/axios";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import {
   CalendarDays,
   CheckCircle,
@@ -87,18 +87,23 @@ const Feedbacks = () => {
     },
   });
 
-  const handleStatusUpdate = async (id: string, currentStatus: string) => {
-    const nextStatus = currentStatus === "Pending" ? "Resolved" : "Pending";
-    try {
-      await apiClient.patch(`/api/feedbacks/${id}`, {
-        status: nextStatus,
+  const editFeedback = useMutation({
+    mutationFn: async (data: { id: string; status: string }) => {
+      const res = await apiClient.patch(`/api/feedbacks/${data.id}`, {
+        status: data.status,
       });
+      return res.data;
+    },
 
+    onSuccess: () => {
       refetch();
       statsRefetch();
-    } catch (err) {
-      console.error("Failed to update status", err);
-    }
+    },
+  });
+
+  const handleStatusUpdate = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "Pending" ? "Resolved" : "Pending";
+    await editFeedback.mutateAsync({ id, status: nextStatus });
   };
 
   useEffect(() => {
