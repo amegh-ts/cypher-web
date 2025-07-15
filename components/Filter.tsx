@@ -27,7 +27,7 @@ export function ApiFilter({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant={selected.length > 1 ? "default" : "outline"} size="sm">
           <Filter className="mr-2 h-4 w-4" />
           Filter
         </Button>
