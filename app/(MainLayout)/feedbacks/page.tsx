@@ -47,11 +47,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import BulkEdit from "@/components/feedback/BulkEdit";
+import { toast } from "sonner";
 
 const Feedbacks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("");
   const { ref, inView } = useInView();
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    );
+  };
 
   const {
     data,
@@ -101,9 +111,34 @@ const Feedbacks = () => {
     },
   });
 
+  const bulkEditFeedback = useMutation({
+    mutationKey: ["bulk-edit-feedback"],
+    mutationFn: async (data: { ids: string[]; status: string }) => {
+      const res = await apiClient.patch(`/api/feedbacks`, data);
+      return res.data;
+    },
+  });
+
   const handleStatusUpdate = async (id: string, currentStatus: string) => {
     const nextStatus = currentStatus === "Pending" ? "Resolved" : "Pending";
     await editFeedback.mutateAsync({ id, status: nextStatus });
+  };
+
+  const handleBulkStatusUpdate = async (status: string) => {
+    await toast.promise(
+      bulkEditFeedback.mutateAsync({ ids: selected, status }),
+      {
+        loading: `Updating ${selected.length} feedbacks...`,
+        success: () => {
+          setSelected([]);
+          refetch();
+          statsRefetch();
+          return `${selected.length} feedbacks updated successfully`;
+        },
+        error: "Failed to update feedbacks",
+        position: "top-right",
+      }
+    );
   };
 
   useEffect(() => {
@@ -179,12 +214,43 @@ const Feedbacks = () => {
               onChange={(status) => setStatus(status.join(","))}
               logTypes={["Resolved", "Pending"]}
             />
+
+            {selected.length > 0 && (
+              <BulkEdit
+                onClick={(status) => handleBulkStatusUpdate(status)}
+                options={[
+                  {
+                    label: "Resolved",
+                    value: "Resolved",
+                    variant: "default",
+                  },
+                  {
+                    label: "Pending",
+                    value: "Pending",
+                    variant: "secondary",
+                  },
+                ]}
+              />
+            )}
           </div>
 
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>
+                    <Checkbox
+                      checked={
+                        filteredFeedbacks.length > 0 &&
+                        selected.length === filteredFeedbacks.length
+                      }
+                      onCheckedChange={(checked) =>
+                        setSelected(
+                          checked ? filteredFeedbacks.map((f) => f._id) : []
+                        )
+                      }
+                    />
+                  </TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Time</TableHead>
                   <TableHead>Feedback</TableHead>
@@ -197,6 +263,9 @@ const Feedbacks = () => {
                 {isLoading
                   ? [...Array(5)].map((_, i) => (
                       <TableRow key={i}>
+                        <TableCell>
+                          <Skeleton className="h-4 w-4" />
+                        </TableCell>
                         <TableCell>
                           <Skeleton className="h-4 w-[80px]" />
                         </TableCell>
@@ -220,6 +289,12 @@ const Feedbacks = () => {
                     ))
                   : filteredFeedbacks.map((fb) => (
                       <TableRow key={fb._id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selected.includes(fb._id)}
+                            onCheckedChange={() => toggleSelected(fb._id)}
+                          />
+                        </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-medium">{fb.username}</span>
