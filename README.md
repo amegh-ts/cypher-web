@@ -175,17 +175,17 @@ docker-compose down
 - [x] Token storage in `HttpOnly` cookie
 - [x] API route protection
 - [x] Tailwind UI with reusable components
+- [x] Dashboard charts (via Recharts or Chart.js)
+- [x] Feedback table UI
+- [x] Activity logs
 
 ### 🧪 In Progress
 
 - [ ] User CRUD module
 - [ ] File uploads
-- [ ] Feedback table UI
 - [ ] Settings page (profile, password, preferences)
 
 ### 🔜 Coming Soon
 
-- [ ] Dashboard charts (via Recharts or Chart.js)
-- [ ] Activity logs
 - [ ] Export to CSV
 - [ ] Mobile responsiveness
