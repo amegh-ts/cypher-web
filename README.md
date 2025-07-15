@@ -80,6 +80,30 @@ Runs locally at `http://localhost:3000`
 
 ## 🚢 Deployment
 
+### 📦 PM2
+
+`1. Install Dependencies & Build`
+
+```bash
+yarn install
+yarn build
+```
+
+`2. Start PM2`
+
+```bash
+pm2 start "yarn start" --name cypher-app
+```
+
+`3. Manage PM2`
+
+```bash
+pm2 logs
+pm2 stop cypher-app
+pm2 restart cypher-app
+pm2 delete cypher-app
+```
+
 ### 📦 Vercel
 
 1. Push your code to GitHub
@@ -87,27 +111,35 @@ Runs locally at `http://localhost:3000`
 3. Set environment variables in Vercel dashboard
 4. Done ✅
 
-### 🐳 Docker (optional)
-
-```dockerfile
-# Dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY . .
-RUN yarn install --frozen-lockfile
-RUN yarn build
-EXPOSE 3000
-CMD ["yarn", "start"]
-```
-
-Then:
+### 🐳 Docker Deployment
 
 ```bash
-docker build -t cypher-dashboard .
-docker run -p 3000:3000 --env-file .env.local cypher-dashboard
+docker build -t cypher .
+docker run -d --name cypher-admin --env-file .env -p 3660:3000 cypher
+```
+
+> 3660 is the host system port.
+
+`Stop the container`
+
+```bash
+docker stop cypher-admin
+docker rm cypher-admin
 ```
 
 ---
+
+### 🐳 Docker Compose
+
+```bash
+docker-compose up -d --build
+```
+
+`Stop the containers`
+
+```bash
+docker-compose down
+```
 
 ## 🔐 Authentication Flow
 
