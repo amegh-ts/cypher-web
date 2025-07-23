@@ -35,47 +35,21 @@ import {
   FileVideo,
   ExternalLink,
 } from "lucide-react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { Skeleton } from "@/components/ui/skeleton";
-import { apiClient } from "@/utils/axios";
-
-function formatFileSize(bytes: number) {
-  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
-  if (bytes === 0) return "0 Byte";
-  const i = Number.parseInt(
-    Math.floor(Math.log(bytes) / Math.log(1024)).toString()
-  );
-  return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + " " + sizes[i];
-}
+import { useInfiniteFiles } from "@/hooks/files/useInfiniteFiles";
+import { useFileStats } from "@/hooks/files/useFileStats";
+import { formatFileSize } from "@/utils/formatFileSize";
+import { StatsCard } from "@/components/stats-card";
 
 export default function FilesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const { ref, inView } = useInView();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: ["cypher-files", searchTerm],
-      queryFn: async ({ pageParam = 0 }) => {
-        const res = await apiClient.get(
-          `/api/files?skip=${pageParam}&limit=20&search=${searchTerm}`
-        );
+  const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } =
+    useInfiniteFiles(searchTerm);
 
-        return res.data;
-      },
-      initialPageParam: 0,
-      getNextPageParam: (lastPage, allPages) => {
-        return lastPage.length < 20 ? undefined : allPages.length * 20;
-      },
-    });
-
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["file-stats"],
-    queryFn: async () => {
-      const res = await apiClient.get("/api/files/stats");
-      return res.data;
-    },
-  });
+  const { data: stats, isLoading: statsLoading } = useFileStats();
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -103,55 +77,37 @@ export default function FilesPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Files</CardTitle>
-            <FileVideo className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsLoading ? "..." : stats?.totalFiles ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">Total indexed files</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Size</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsLoading ? "..." : formatFileSize(stats?.totalSize) ?? 0}
-            </div>
-            <p className="text-xs text-muted-foreground">Across all files</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Video Files</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <div className="text-2xl font-bold">
-                {statsLoading ? "..." : stats?.videoCount ?? 0}
-              </div>{" "}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Movie and TV content
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg File Size</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {statsLoading ? "..." : formatFileSize(stats?.avgSize) ?? 0}{" "}
-            </div>
-            <p className="text-xs text-muted-foreground">Per file average</p>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title="Total Files"
+          value={String(stats?.totalFiles)}
+          description="Total indexed files"
+          icon={FileVideo}
+          isLoading={statsLoading}
+        />
+
+        <StatsCard
+          title="Total Size"
+          value={formatFileSize(stats?.totalSize ?? 0)}
+          description="Across all files"
+          icon={FileVideo}
+          isLoading={statsLoading}
+        />
+
+        <StatsCard
+          title="Video Files"
+          value={String(stats?.videoCount)}
+          description="Movie and TV content"
+          icon={FileVideo}
+          isLoading={statsLoading}
+        />
+
+        <StatsCard
+          title="Avg File Size"
+          value={formatFileSize(stats?.avgSize ?? 0)}
+          description="Per file average"
+          icon={FileVideo}
+          isLoading={statsLoading}
+        />
       </div>
 
       <Card>
