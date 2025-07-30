@@ -8,7 +8,12 @@ import { Toaster } from "@/components/ui/sonner";
 export const metadata: Metadata = {
   title: "CYPHER Bot Admin",
   description: "Admin dashboard for Telegram movie bot",
-  generator: "v0.dev",
+  manifest: "/manifest.ts",
+  appleWebApp: {
+    capable: true,
+    title: "CYPHER Bot Admin",
+  },
+  generator: "Kratos",
 };
 
 export default function RootLayout({
