@@ -8,7 +8,6 @@ const SettingsPage = () => {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold">Settings</h1>
-
       {/* Install PWA */}
       <Card>
         <CardHeader>
