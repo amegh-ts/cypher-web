@@ -4,6 +4,7 @@ import { useSidebar } from "@/hooks/use-sidebar";
 import { useStore } from "@/hooks/use-store";
 import { cn } from "@/lib/utils";
 import { Sidebar } from "./sidebar";
+import MobileDock from "./mobile-dock";
 
 export default function AdvanceSidebar({
   children,
@@ -23,6 +24,8 @@ export default function AdvanceSidebar({
         )}
       >
         {children}
+
+        <MobileDock />
       </main>
     </>
   );
