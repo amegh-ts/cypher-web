@@ -73,6 +73,7 @@ const Dashboard = () => {
               ? "up"
               : "down"
           }
+          isLoading={statsLoading}
         />
         <StatsCard
           title="Pending Feedback"
@@ -86,16 +87,18 @@ const Dashboard = () => {
               ? "up"
               : "down"
           }
+          isLoading={statsLoading}
         />
         <StatsCard
           title="Storage Used"
           value={formatFileSize(stats?.totalStorageUsed || 0)}
           icon={HardDrive}
+          isLoading={statsLoading}
         />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="md:col-span-4">
           <CardHeader>
             <CardTitle>Overview</CardTitle>
           </CardHeader>
@@ -104,7 +107,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3">
+        <Card className="md:col-span-3 w-full">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
