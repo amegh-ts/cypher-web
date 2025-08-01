@@ -1,6 +1,7 @@
 "use client";
 
 import InstallButton from "@/components/InstallButton";
+import { SubscribeButton } from "@/components/SubscribeButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react";
 
@@ -21,6 +22,8 @@ const SettingsPage = () => {
           <InstallButton />
         </CardContent>
       </Card>
+
+      <SubscribeButton />
     </div>
   );
 };
