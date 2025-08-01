@@ -2,7 +2,7 @@
 // app/api/send-notification/route.ts
 import { NextResponse } from "next/server";
 import webpush from "@/lib/webpush";
-import { getSubscriptions } from "../subscribe/route";
+import { getSubscriptions } from "@/lib/push-store";
 import type { PushSubscription as WebPushSubscription } from "web-push";
 
 function toWebPushSubscription(sub: any): WebPushSubscription | null {
@@ -30,7 +30,7 @@ export async function POST() {
   await Promise.allSettled(
     subscriptions
       .map((sub) => toWebPushSubscription(sub))
-      .filter(Boolean) // removes nulls
+      .filter(Boolean)
       .map((sub) =>
         webpush.sendNotification(sub!, JSON.stringify(notificationPayload))
       )

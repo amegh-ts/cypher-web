@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-const subscriptions: PushSubscription[] = [];
+import { addSubscription } from "@/lib/push-store";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  subscriptions.push(body);
+  addSubscription(body);
   return NextResponse.json({ success: true });
-}
-
-export function getSubscriptions() {
-  return subscriptions;
 }
