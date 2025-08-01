@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type LucideIcon, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StatsCardProps {
   title: string;
-  value: string;
+  value: string | number;
   description?: string;
   icon: LucideIcon;
   trend?: "up" | "down" | "neutral";
@@ -21,7 +22,6 @@ export function StatsCard({
 }: StatsCardProps) {
   const TrendIcon =
     trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus;
-
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -29,7 +29,9 @@ export function StatsCard({
         <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{isLoading ? "..." : value}</div>
+        <div className="text-2xl font-bold">
+          {isLoading ? <Skeleton className="h-8 w-24" /> : value}
+        </div>
         {description && (
           <div className="flex items-center text-xs text-muted-foreground">
             {trend && (
@@ -42,7 +44,7 @@ export function StatsCard({
                 )}
               />
             )}
-            {description}
+            {isLoading ? <Skeleton className="h-4 w-32" /> : description}
           </div>
         )}
       </CardContent>
