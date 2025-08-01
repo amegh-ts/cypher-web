@@ -1,4 +1,5 @@
 "use client";
+
 import { BotStatus } from "@/components/bot-status";
 import { ChartOverview } from "@/components/chart-overview";
 import { RecentActivity } from "@/components/recent-activity";
@@ -15,6 +16,28 @@ import { apiClient } from "@/utils/axios";
 import { useQuery } from "@tanstack/react-query";
 import { FileVideo, HardDrive, MessageSquare, Users } from "lucide-react";
 import React from "react";
+import { motion } from "framer-motion";
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+    },
+  },
+};
 
 const Dashboard = () => {
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -35,95 +58,126 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
+    <motion.div
+      className="flex-1 space-y-4 p-4 md:p-8 pt-6"
+      variants={container}
+      initial="hidden"
+      animate="show"
+    >
+      <motion.div
+        className="flex items-center justify-between space-y-2"
+        variants={item}
+      >
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="text-green-600 border-green-600">
-            <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
+            <div className="w-2 h-2 bg-green-600 rounded-full mr-2" />
             Bot Online
           </Badge>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          title="Total Users"
-          value={stats?.totalUsers || 0}
-          description={`${stats?.userGrowth}% from last month`}
-          icon={Users}
-          trend={
-            stats?.userGrowth === 0
-              ? "neutral"
-              : stats?.userGrowth > 0
-              ? "up"
-              : "down"
-          }
-          isLoading={statsLoading}
-        />
-        <StatsCard
-          title="Active Files"
-          value={stats?.totalFiles || 0}
-          description={`${stats?.fileGrowth}% from last month`}
-          icon={FileVideo}
-          trend={
-            stats?.fileGrowth === 0
-              ? "neutral"
-              : stats?.fileGrowth > 0
-              ? "up"
-              : "down"
-          }
-          isLoading={statsLoading}
-        />
-        <StatsCard
-          title="Pending Feedback"
-          value={stats?.pendingFeedbacks || 0}
-          description={`${stats?.feedbackGrowth}% from last month`}
-          icon={MessageSquare}
-          trend={
-            stats?.feedbackGrowth === 0
-              ? "neutral"
-              : stats?.feedbackGrowth > 0
-              ? "up"
-              : "down"
-          }
-          isLoading={statsLoading}
-        />
-        <StatsCard
-          title="Storage Used"
-          value={formatFileSize(stats?.totalStorageUsed || 0)}
-          icon={HardDrive}
-          isLoading={statsLoading}
-        />
-      </div>
+      <motion.div
+        className="grid gap-4 grid-cols-2 lg:grid-cols-4"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={item}>
+          <StatsCard
+            title="Total Users"
+            value={stats?.totalUsers || 0}
+            description={`${stats?.userGrowth}% from last month`}
+            icon={Users}
+            trend={
+              stats?.userGrowth === 0
+                ? "neutral"
+                : stats?.userGrowth > 0
+                ? "up"
+                : "down"
+            }
+            isLoading={statsLoading}
+          />
+        </motion.div>
+        <motion.div variants={item}>
+          <StatsCard
+            title="Active Files"
+            value={stats?.totalFiles || 0}
+            description={`${stats?.fileGrowth}% from last month`}
+            icon={FileVideo}
+            trend={
+              stats?.fileGrowth === 0
+                ? "neutral"
+                : stats?.fileGrowth > 0
+                ? "up"
+                : "down"
+            }
+            isLoading={statsLoading}
+          />
+        </motion.div>
+        <motion.div variants={item}>
+          <StatsCard
+            title="Pending Feedback"
+            value={stats?.pendingFeedbacks || 0}
+            description={`${stats?.feedbackGrowth}% from last month`}
+            icon={MessageSquare}
+            trend={
+              stats?.feedbackGrowth === 0
+                ? "neutral"
+                : stats?.feedbackGrowth > 0
+                ? "up"
+                : "down"
+            }
+            isLoading={statsLoading}
+          />
+        </motion.div>
+        <motion.div variants={item}>
+          <StatsCard
+            title="Storage Used"
+            value={formatFileSize(stats?.totalStorageUsed || 0)}
+            icon={HardDrive}
+            isLoading={statsLoading}
+            description="Total storage used"
+          />
+        </motion.div>
+      </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="md:col-span-4">
-          <CardHeader>
-            <CardTitle>Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ChartOverview data={stats?.graph} loading={statsLoading} />
-          </CardContent>
-        </Card>
+      <motion.div
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-7"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={item} className="md:col-span-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">
+              <ChartOverview data={stats?.graph} loading={statsLoading} />
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card className="md:col-span-3 w-full">
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest bot interactions and updates
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RecentActivity />
-          </CardContent>
-        </Card>
-      </div>
+        <motion.div variants={item} className="md:col-span-3 w-full">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>
+                Latest bot interactions and updates
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RecentActivity />
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
 
-      <div>
+      <motion.div variants={item} initial="hidden" animate="show">
         <BotStatus />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
