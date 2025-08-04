@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Providers from "@/lib/ReactQueryClientProvider";
 import { Toaster } from "@/components/ui/sonner";
-import { ServiceWorkerRegister } from "@/components/sw-register";
 
 export const metadata: Metadata = {
   title: "CYPHER Bot Admin",
@@ -33,7 +32,6 @@ export default function RootLayout({
         >
           <Providers>{children}</Providers>
           <Toaster />
-          <ServiceWorkerRegister />
         </ThemeProvider>
       </body>
     </html>
