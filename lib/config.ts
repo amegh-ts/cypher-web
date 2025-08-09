@@ -3,7 +3,7 @@ export const config = {
     uri: process.env.MONGODB_URI!,
   },
   jwt: {
-    secret: process.env.JWT_SECRET || "cypher-admin-panel-secret-key-2024",
+    secret: process.env.JWT_SECRET!,
     expiresIn: "24h",
   },
   app: {

@@ -1,37 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import CryptoJS from "crypto-js";
+export const runtime = "nodejs";
+
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { config } from "./config";
+import bcrypt from "bcryptjs";
 
-const SECRET_KEY = config.jwt.secret;
-const key = new TextEncoder().encode(SECRET_KEY);
+const SECRET_KEY = new TextEncoder().encode(config.jwt.secret);
 
-export function hashPassword(password: string): string {
-  return CryptoJS.SHA256(password).toString();
+export async function hashPassword(password: string): Promise<string> {
+  const salt = await bcrypt.genSalt(12);
+  return bcrypt.hash(password, salt);
 }
 
-export function verifyPassword(
+export async function verifyPassword(
   password: string,
   hashedPassword: string
-): boolean {
-  return CryptoJS.SHA256(password).toString() === hashedPassword;
+): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword);
 }
 
-export async function createToken(payload: Record<string, any>) {
-  return await new SignJWT(payload)
+export async function createToken(
+  payload: Record<string, any>,
+  expiresIn = "1h"
+) {
+  return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("24h")
-    .sign(key);
+    .setExpirationTime(expiresIn)
+    .sign(SECRET_KEY);
 }
 
 export async function verifyToken(token: string) {
   try {
-    const { payload } = await jwtVerify(token, key);
+    const { payload } = await jwtVerify(token, SECRET_KEY);
     return payload;
-  } catch (error) {
-    console.error("Error verifying token:", error);
+  } catch {
     return null;
   }
 }
