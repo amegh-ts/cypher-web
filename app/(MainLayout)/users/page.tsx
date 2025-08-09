@@ -258,18 +258,6 @@ export default function UsersPage() {
                             </TableCell>
                           </TableRow>
                         ))}
-                    <TableRow ref={ref}>
-                      <TableCell
-                        colSpan={6}
-                        className="p-4 text-center text-muted-foreground"
-                      >
-                        {isFetchingNextPage
-                          ? "Loading more..."
-                          : hasNextPage
-                          ? "Scroll to load more"
-                          : "No more users"}
-                      </TableCell>
-                    </TableRow>
                   </TableBody>
                 </Table>
               </div>
@@ -332,16 +320,16 @@ export default function UsersPage() {
                     </CardContent>
                   </Card>
                 ))}
+              </div>
 
-                <div className="flex justify-center" ref={ref}>
-                  <span className="p-4 text-center text-muted-foreground">
-                    {isFetchingNextPage
-                      ? "Loading more..."
-                      : hasNextPage
-                      ? "Scroll to load more"
-                      : "No more users"}
-                  </span>
-                </div>
+              <div className="flex justify-center" ref={ref}>
+                <span className="p-4 text-center text-muted-foreground">
+                  {isFetchingNextPage
+                    ? "Loading more..."
+                    : hasNextPage
+                    ? "Scroll to load more"
+                    : "No more users"}
+                </span>
               </div>
             </CardContent>
           </Card>

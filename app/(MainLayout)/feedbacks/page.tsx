@@ -361,18 +361,6 @@ const Feedbacks = () => {
                           </TableCell>
                         </TableRow>
                       ))}
-                  <TableRow ref={ref}>
-                    <TableCell
-                      colSpan={7}
-                      className="p-4 text-center text-muted-foreground"
-                    >
-                      {isFetchingNextPage
-                        ? "Loading more..."
-                        : hasNextPage
-                        ? "Scroll to load more"
-                        : "No more feedbacks"}
-                    </TableCell>
-                  </TableRow>
                 </TableBody>
               </Table>
             </div>
@@ -438,15 +426,16 @@ const Feedbacks = () => {
                   </Card>
                 </motion.div>
               ))}
-              <div className="flex justify-center" ref={ref}>
-                <span className="p-4 text-center text-muted-foreground">
-                  {isFetchingNextPage
-                    ? "Loading more..."
-                    : hasNextPage
-                    ? "Scroll to load more"
-                    : "No more users"}
-                </span>
-              </div>
+            </div>
+
+            <div className="flex justify-center" ref={ref}>
+              <span className="p-4 text-center text-muted-foreground">
+                {isFetchingNextPage
+                  ? "Loading more..."
+                  : hasNextPage
+                  ? "Scroll to load more"
+                  : "No more users"}
+              </span>
             </div>
           </CardContent>
         </Card>

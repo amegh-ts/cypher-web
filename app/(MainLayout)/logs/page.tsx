@@ -210,18 +210,6 @@ const Logs = () => {
                             </TableCell>
                           </TableRow>
                         ))}
-                    <TableRow ref={ref}>
-                      <TableCell
-                        colSpan={6}
-                        className="p-4 text-center text-muted-foreground"
-                      >
-                        {isFetchingNextPage
-                          ? "Loading more..."
-                          : hasNextPage
-                          ? "Scroll to load more"
-                          : "No more users"}
-                      </TableCell>
-                    </TableRow>
                   </TableBody>
                 </Table>
               </div>
@@ -285,17 +273,16 @@ const Logs = () => {
                         </CardContent>
                       </Card>
                     ))}
+              </div>
 
-                <div
-                  ref={ref}
-                  className="text-center text-muted-foreground py-4 text-sm"
-                >
+              <div className="flex justify-center" ref={ref}>
+                <span className="p-4 text-center text-muted-foreground">
                   {isFetchingNextPage
                     ? "Loading more..."
                     : hasNextPage
                     ? "Scroll to load more"
                     : "No more users"}
-                </div>
+                </span>
               </div>
             </CardContent>
           </Card>

@@ -3,10 +3,16 @@
 import InstallButton from "@/components/InstallButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React from "react";
+import { motion } from "framer-motion";
 
 const SettingsPage = () => {
   return (
-    <div className="p-6 space-y-8">
+    <motion.div
+      className="p-6 space-y-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <h1 className="text-3xl font-bold">Settings</h1>
       {/* Install PWA */}
       <Card>
@@ -21,7 +27,7 @@ const SettingsPage = () => {
           <InstallButton />
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 };
 
