@@ -256,18 +256,6 @@ export default function FilesPage() {
                             </TableCell>
                           </TableRow>
                         ))}
-                    <TableRow ref={ref}>
-                      <TableCell
-                        colSpan={6}
-                        className="p-4 text-center text-muted-foreground"
-                      >
-                        {isFetchingNextPage
-                          ? "Loading more..."
-                          : hasNextPage
-                          ? "Scroll to load more"
-                          : "No more files"}
-                      </TableCell>
-                    </TableRow>
                   </TableBody>
                 </Table>
               </div>
@@ -339,16 +327,16 @@ export default function FilesPage() {
                     </Card>
                   </motion.div>
                 ))}
+              </div>
 
-                <div className="flex justify-center" ref={ref}>
-                  <span className="p-4 text-center text-muted-foreground">
-                    {isFetchingNextPage
-                      ? "Loading more..."
-                      : hasNextPage
-                      ? "Scroll to load more"
-                      : "No more users"}
-                  </span>
-                </div>
+              <div className="flex justify-center" ref={ref}>
+                <span className="p-4 text-center text-muted-foreground">
+                  {isFetchingNextPage
+                    ? "Loading more..."
+                    : hasNextPage
+                    ? "Scroll to load more"
+                    : "No more users"}
+                </span>
               </div>
             </CardContent>
           </Card>
