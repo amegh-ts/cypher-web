@@ -11,12 +11,8 @@ const withPWA = withPWAInit({
 const nextConfig = {
     reactStrictMode: true,
     experimental: {
-        turbo: {
-            resolveAlias: {
-                canvas: "./empty-module.ts",
-            },
-        },
-    },
+        turbo: {},
+    }
 };
 
 export default withPWA(nextConfig);

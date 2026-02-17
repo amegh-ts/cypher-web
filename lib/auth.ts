@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import connectDB from "@/lib/mongodb";
 import WebUser from "@/models/WebUsers";
 import bcrypt from "bcryptjs";
+import { config } from "@/lib/config";
 
 export const authOptions: NextAuthOptions = {
     providers: [
@@ -71,5 +72,5 @@ export const authOptions: NextAuthOptions = {
         strategy: "jwt",
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: config.app.secret,
 };
