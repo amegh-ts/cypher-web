@@ -1,21 +1,20 @@
 import mongoose from "mongoose";
 
 const SubscriptionSchema = new mongoose.Schema(
-  {
-    endpoint: { type: String, required: true, unique: true },
-    expirationTime: { type: Number, required: false },
-    keys: {
-      p256dh: { type: String, required: true },
-      auth: { type: String, required: true },
+    {
+        user_id: { type: String, required: true },
+        endpoint: { type: String, required: true },
+        keys: {
+            p256dh: { type: String, required: true },
+            auth: { type: String, required: true },
+        },
+        created_at: { type: Date, default: Date.now },
     },
-    // Optional: link subscription to a user/admin
-    adminId: { type: mongoose.Schema.Types.ObjectId, ref: "admin" },
-  },
-  {
-    timestamps: true,
-    collection: "subscriptions",
-  }
+    {
+        timestamps: false,
+        collection: "subscriptions",
+    }
 );
 
 export default mongoose.models.Subscription ||
-  mongoose.model("Subscription", SubscriptionSchema, "subscriptions");
+    mongoose.model("Subscription", SubscriptionSchema);
